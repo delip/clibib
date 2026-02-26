@@ -1,6 +1,6 @@
 # clibib
 
-Fetch BibTeX entries from a URL.
+Fetch BibTeX entries from a URL, ISBN, DOI, PMID, arXiv, or even just title!
 
 ## Installation
 
