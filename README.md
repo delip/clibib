@@ -1,4 +1,5 @@
 # clibib
+[![CI](https://github.com/delip/clibib/actions/workflows/ci.yml/badge.svg)](https://github.com/delip/clibib/actions/workflows/ci.yml)
 
 Fetch BibTeX entries from a URL, ISBN, DOI, PMID, arXiv, or even just title!
 
