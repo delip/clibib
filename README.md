@@ -5,7 +5,7 @@ Fetch BibTeX entries from a URL, ISBN, DOI, PMID, arXiv, or even just title!
 ## Installation
 
 ```bash
-pip install -e ".[dev]"
+pip install clibib
 ```
 
 ## Usage
@@ -26,8 +26,7 @@ clibib https://example.com/article
 
 ## Development
 
-Run tests:
-
 ```bash
+pip install -e ".[dev]"
 pytest
 ```
