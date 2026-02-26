@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "clibib"
+version = "0.1.0"
+description = "Fetch BibTeX entries from a URL"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Delip Rao" },
+]
+
+[project.scripts]
+clibib = "clibib.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest"]
