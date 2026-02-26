@@ -20,8 +20,6 @@ clibib https://arxiv.org/abs/2301.07041
 # From an ISBN
 clibib 978-0-13-468599-1
 
-# From any URL
-clibib https://example.com/article
 ```
 
 ## Development
