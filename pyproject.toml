@@ -5,12 +5,15 @@ build-backend = "hatchling.build"
 [project]
 name = "clibib"
 version = "0.1.0"
-description = "Fetch BibTeX entries from a URL"
+description = "Fetch BibTeX entries from a URL, DOI, ISBN, PMID, or arXiv ID"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
     { name = "Delip Rao" },
+]
+dependencies = [
+    "requests",
 ]
 
 [project.scripts]
