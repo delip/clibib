@@ -8,9 +8,9 @@ def build_parser():
     """Return the argument parser for clibib."""
     parser = argparse.ArgumentParser(
         prog="clibib",
-        description="Fetch BibTeX entries for a URL, DOI, ISBN, PMID, or arXiv ID.",
+        description="Fetch BibTeX entries for a URL, DOI, ISBN, PMID, paper title or arXiv ID.",
     )
-    parser.add_argument("query", help="URL, DOI, ISBN, PMID, or arXiv ID to look up")
+    parser.add_argument("query", help="URL, DOI, ISBN, PMID, paper title or arXiv ID to look up")
     return parser
 
 
