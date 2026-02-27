@@ -24,8 +24,11 @@ pip install clibib
 # Fetch BibTeX from a DOI
 clibib 10.1038/nature12373
 
-# From an arXiv URL
-clibib https://arxiv.org/abs/2301.07041
+# From an arXiv ID
+clibib 2301.07041
+
+# From a URL
+clibib https://academic.oup.com/bib/article/25/1/bbad467/7512647
 
 # From an ISBN
 clibib 978-0-13-468599-1
