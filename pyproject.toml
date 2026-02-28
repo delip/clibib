@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "clibib"
-version = "1.0.0"
+version = "1.0.1"
 description = "Fetch BibTeX entries from a URL, DOI, ISBN, PMID, or arXiv ID"
 readme = "README.md"
 license = "MIT"
