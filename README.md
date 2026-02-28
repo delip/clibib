@@ -33,6 +33,8 @@ clibib https://academic.oup.com/bib/article/25/1/bbad467/7512647
 # From an ISBN
 clibib 978-0-13-468599-1
 
+# Save BibTeX to a file
+clibib -o ~/bibs 10.1038/nature12373
 ```
 
 ## Development

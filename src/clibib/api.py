@@ -112,6 +112,14 @@ def _sanitize_bibtex_keys(bibtex: str) -> str:
     return re.sub(r"@(\w+)\{(.+?),", _replace_key, bibtex)
 
 
+def extract_bibkey(bibtex: str) -> str:
+    """Extract the citation key from a BibTeX entry string."""
+    match = re.match(r"@\w+\{([^,]+)", bibtex.strip())
+    if not match:
+        raise ValueError("Could not extract BibTeX key from entry")
+    return match.group(1).strip()
+
+
 def convert_to_bibtex(items: list[dict]) -> str:
     """Convert Zotero JSON items to BibTeX via the translation server."""
     resp = requests.post(

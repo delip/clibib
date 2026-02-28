@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from clibib.api import _sanitize_bibtex_keys, classify_input, fetch_bibtex, normalize_url
+from clibib.api import _sanitize_bibtex_keys, classify_input, extract_bibkey, fetch_bibtex, normalize_url
 from clibib.cli import build_parser, main
 
 
@@ -19,6 +19,40 @@ def test_parser_accepts_doi():
     parser = build_parser()
     args = parser.parse_args(["10.1038/nature12373"])
     assert args.query == "10.1038/nature12373"
+
+
+def test_parser_accepts_output_dir():
+    parser = build_parser()
+    args = parser.parse_args(["-o", "/tmp/bibs", "10.1038/nature12373"])
+    assert args.o == "/tmp/bibs"
+    assert args.query == "10.1038/nature12373"
+
+
+def test_parser_output_dir_default_is_none():
+    parser = build_parser()
+    args = parser.parse_args(["10.1038/nature12373"])
+    assert args.o is None
+
+
+# --- extract_bibkey ---
+
+
+@pytest.mark.parametrize(
+    "bibtex, expected",
+    [
+        ("@article{doe_2023,\n\ttitle={T},\n}", "doe_2023"),
+        ("@book{smith_intro_2020,\n\ttitle={T},\n}", "smith_intro_2020"),
+        ("@misc{key123,\n\ttitle={T},\n}", "key123"),
+        ("@inproceedings{vaswani_attention_2017,\n\ttitle={T},\n}", "vaswani_attention_2017"),
+    ],
+)
+def test_extract_bibkey(bibtex, expected):
+    assert extract_bibkey(bibtex) == expected
+
+
+def test_extract_bibkey_malformed():
+    with pytest.raises(ValueError, match="Could not extract BibTeX key"):
+        extract_bibkey("not a bibtex entry")
 
 
 # --- classify_input ---
@@ -220,6 +254,24 @@ def test_main_prints_bibtex(mock_fetch, capsys):
     main(["10.1038/nature12373"])
     captured = capsys.readouterr()
     assert "Test Article" in captured.out
+
+
+@patch("clibib.cli.fetch_bibtex")
+def test_main_saves_to_output_dir(mock_fetch, capsys, tmp_path):
+    mock_fetch.return_value = SAMPLE_BIBTEX
+    main(["-o", str(tmp_path), "10.1038/nature12373"])
+    captured = capsys.readouterr()
+    assert "Test Article" in captured.out
+    bib_file = tmp_path / "doe_test_2023.bib"
+    assert bib_file.exists()
+    assert bib_file.read_text(encoding="utf-8") == SAMPLE_BIBTEX
+
+
+@patch("clibib.cli.fetch_bibtex")
+def test_main_no_output_dir_no_file(mock_fetch, capsys, tmp_path):
+    mock_fetch.return_value = SAMPLE_BIBTEX
+    main(["10.1038/nature12373"])
+    assert not list(tmp_path.iterdir())
 
 
 @patch("clibib.cli.fetch_bibtex")
