@@ -1,6 +1,6 @@
-# clibib Skill for Claude Code
+# clibib Agent Skill
 
-A [Claude Code skill](https://docs.anthropic.com/en/docs/claude-code/skills) that lets you fetch BibTeX citations by asking naturally or using the `/clibib` slash command.
+An [Agent Skill](https://agentskills.io) that lets you fetch BibTeX citations by asking naturally or using the `/clibib` slash command. Compatible with any agent that supports the agentskills.io open standard — Claude Code, Codex CLI, Gemini CLI, OpenHands, GitHub Copilot, and [others](https://agentskills.io).
 
 ## What It Does
 
@@ -17,17 +17,21 @@ Fetches BibTeX entries from any of these inputs:
 
 ## Installation
 
-**For all projects (personal):**
+Copy the skill directory into your agent's skills location. For example:
+
+**Claude Code (personal):**
 
 ```bash
 cp -r skill/clibib ~/.claude/skills/clibib
 ```
 
-**For a specific project:**
+**Claude Code (project-specific):**
 
 ```bash
 cp -r skill/clibib .claude/skills/clibib
 ```
+
+For other agents, consult their documentation on where to install agentskills.io-compatible skills.
 
 ## Usage
 

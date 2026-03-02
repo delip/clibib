@@ -37,11 +37,11 @@ clibib 978-0-13-468599-1
 clibib -o ~/bibs 10.1038/nature12373
 ```
 
-## Claude Code Skill
+## Agent Skill
 
-clibib includes a [Claude Code skill](https://docs.anthropic.com/en/docs/claude-code/skills) for fetching citations through natural language or the `/clibib` slash command.
+clibib includes an [Agent Skill](https://agentskills.io) for fetching citations through natural language or the `/clibib` slash command. Works with any agent that supports the open standard — Claude Code, Codex CLI, Gemini CLI, OpenHands, GitHub Copilot, and [others](https://agentskills.io).
 
-**Install:**
+**Install (Claude Code example):**
 
 ```bash
 cp -r skill/clibib ~/.claude/skills/clibib
