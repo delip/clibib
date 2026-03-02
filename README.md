@@ -37,6 +37,25 @@ clibib 978-0-13-468599-1
 clibib -o ~/bibs 10.1038/nature12373
 ```
 
+## Claude Code Skill
+
+clibib includes a [Claude Code skill](https://docs.anthropic.com/en/docs/claude-code/skills) for fetching citations through natural language or the `/clibib` slash command.
+
+**Install:**
+
+```bash
+cp -r skill/clibib ~/.claude/skills/clibib
+```
+
+**Usage:**
+
+```
+Get me the bibtex for 10.1038/nature12373
+/clibib 2301.07041
+```
+
+See [skill/README.md](skill/README.md) for full details.
+
 ## Development
 
 ```bash
