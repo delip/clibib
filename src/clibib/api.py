@@ -5,9 +5,7 @@ from urllib.parse import urlparse
 
 import requests
 
-TRANSLATION_SERVER = (
-    "https://t0guvf0w17.execute-api.us-east-1.amazonaws.com/Prod"
-)
+TRANSLATION_SERVER = "https://t0guvf0w17.execute-api.us-east-1.amazonaws.com/Prod"
 
 
 def normalize_url(url: str) -> str:
@@ -70,6 +68,10 @@ def fetch_zotero_json(text: str) -> list[dict]:
     input_type = classify_input(text)
 
     if input_type == "url":
+        if text.contains("alphaxiv.org"):
+            text = text.replace("alphaxiv.org", "arxiv.org")
+        if text.contains("huggingface.co/papers/"):
+            text = text.replace("huggingface.co/papers/", "arxiv.org/abs/")
         url = normalize_url(text)
         resp = requests.post(
             f"{TRANSLATION_SERVER}/web",
@@ -103,10 +105,12 @@ def _sanitize_bibtex_keys(bibtex: str) -> str:
 
     Keys must be safe for use as directory names.
     """
+
     def _replace_key(m: re.Match) -> str:
         entry_type = m.group(1)
         raw_key = m.group(2)
         clean_key = _UNSAFE_KEY_RE.sub("_", raw_key)
+        clean_key = re.sub(r"_+", "_", clean_key)
         return f"@{entry_type}{{{clean_key},"
 
     return re.sub(r"@(\w+)\{(.+?),", _replace_key, bibtex)

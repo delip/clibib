@@ -1,10 +1,7 @@
 ---
 name: clibib
 description: >
-  Fetch BibTeX citations from DOIs, arXiv IDs, ISBNs, PMIDs, URLs, or paper titles
-  using the clibib CLI. Triggers on: cite, bibtex, citation, DOI, arXiv, ISBN, PMID,
-  bibliography, reference, "get bibtex for", "add to references", "fetch citation",
-  "look up paper", "find reference".
+  Fetch BibTeX citations from DOIs, arXiv IDs, ISBNs, PMIDs, URLs, alphaxiv, huggingface papers, or paper titles using the clibib CLI. Triggers on: cite, bibtex, citation, DOI, arXiv, ISBN, PMID, alphaxiv, huggingface.co/papers/, bibliography, reference, "get bibtex for", "add to references", "fetch citation", "look up paper", "find reference".
 allowed-tools:
   - Bash(clibib *)
   - Bash(pip install clibib)
@@ -35,14 +32,16 @@ pip install clibib
 
 Run `clibib <query>` where query is any of:
 
-| Input Type | Example |
-|---|---|
-| DOI | `clibib 10.1038/nature12373` |
-| arXiv ID | `clibib 2301.07041` |
-| ISBN | `clibib 978-0-13-468599-1` |
-| PMID | `clibib 23624526` |
-| URL | `clibib https://academic.oup.com/bib/article/25/1/bbad467/7512647` |
-| Paper title | `clibib "Attention Is All You Need"` |
+| Input Type  | Example                                                            |
+| ----------- | ------------------------------------------------------------------ |
+| DOI         | `clibib 10.1038/nature12373`                                       |
+| arXiv ID    | `clibib 2301.07041`                                                |
+| ISBN        | `clibib 978-0-13-468599-1`                                         |
+| PMID        | `clibib 23624526`                                                  |
+| URL         | `clibib https://academic.oup.com/bib/article/25/1/bbad467/7512647` |
+| alphaxiv    | `clibib https://alphaxiv.org/abs/2301.07041`                       |
+| huggingface | `clibib https://huggingface.co/papers/2301.07041`                  |
+| Paper title | `clibib "Attention Is All You Need"`                               |
 
 The command prints BibTeX to stdout. Capture and use the output as needed.
 
@@ -86,11 +85,11 @@ clibib 2301.07041
 
 ## Error Handling
 
-| Scenario | Behavior |
-|---|---|
-| No results found | Exits with code 1, prints "Error: No results found" to stderr |
-| Network error | Exits with code 1, prints the error message to stderr |
-| Command not found | Install with `pip install clibib` |
+| Scenario          | Behavior                                                      |
+| ----------------- | ------------------------------------------------------------- |
+| No results found  | Exits with code 1, prints "Error: No results found" to stderr |
+| Network error     | Exits with code 1, prints the error message to stderr         |
+| Command not found | Install with `pip install clibib`                             |
 
 If clibib returns an error, inform the user of the issue. For "no results found", suggest checking the query format or trying an alternative identifier for the same paper.
 

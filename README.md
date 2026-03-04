@@ -8,7 +8,7 @@
 <p align="center">
 <img width="600" height="470" alt="image" src="https://github.com/user-attachments/assets/0c60331c-dbbd-4ada-92c6-c2df952177cb" />
 </p>
-A Python-based CLI tool to fetch BibTeX entries from a URL, ISBN, DOI, PMID, arXiv, or even just title!
+A Python-based CLI tool to fetch BibTeX entries from a URL, ISBN, DOI, PMID, arXiv, alphaxiv, huggingface papers, or even just the paper title!
 
 
 
