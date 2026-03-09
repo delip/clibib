@@ -68,9 +68,9 @@ def fetch_zotero_json(text: str) -> list[dict]:
     input_type = classify_input(text)
 
     if input_type == "url":
-        if text.contains("alphaxiv.org"):
+        if "alphaxiv.org" in text:
             text = text.replace("alphaxiv.org", "arxiv.org")
-        if text.contains("huggingface.co/papers/"):
+        if "huggingface.co/papers/" in text:
             text = text.replace("huggingface.co/papers/", "arxiv.org/abs/")
         url = normalize_url(text)
         resp = requests.post(
