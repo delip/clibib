@@ -31,7 +31,10 @@
 ### Paper Title (Free Text)
 
 - Any text that doesn't match the above formats
-- Triggers an ambiguous search; the server returns multiple candidates and clibib picks the first match
+- Triggers an ambiguous search; the server may return multiple candidates (HTTP 300)
+- If exactly one candidate is returned, it is resolved automatically
+- If multiple candidates are returned, clibib ranks them by Jaccard token similarity against the query and outputs all matching BibTeX entries (use `--first` to output only the top match)
+- If the primary server returns no results, clibib falls back to CrossRef to find candidate DOIs
 - Wrap multi-word titles in quotes on the command line
 
 ## URL Normalization
@@ -72,13 +75,13 @@ When `-o OUTPUT_DIR` is provided:
 
 ## Backend
 
-clibib uses a Zotero Translation Server instance as its backend. The server handles:
+clibib uses a Zotero Translation Server instance as its backend, with CrossRef as a fallback for title searches. The server handles:
 
 - `/web` endpoint: resolves URLs to metadata
 - `/search` endpoint: resolves identifiers (DOI, ISBN, arXiv, PMID) and free-text queries
 - `/export` endpoint: converts Zotero JSON to BibTeX format
 
-The search endpoint returns HTTP 200 for exact identifier matches and HTTP 300 for ambiguous text queries (with a choice map). clibib automatically picks the first result from ambiguous responses.
+The search endpoint returns HTTP 200 for exact identifier matches and HTTP 300 for ambiguous text queries (with a choice map). For single-candidate 300 responses, clibib resolves automatically. For multi-candidate responses, candidates are ranked by Jaccard token similarity and all matching BibTeX entries are output (use `--first` for only the top match). When the search endpoint returns no results for a title query, clibib falls back to CrossRef's open API to find candidate DOIs.
 
 ## Common Issues
 
@@ -88,5 +91,5 @@ The search endpoint returns HTTP 200 for exact identifier matches and HTTP 300 f
 | "No results found" for title | Title too vague or too specific | Adjust the search terms; try the exact paper title |
 | Network timeout | Server unreachable | Check internet connection; retry |
 | Garbled citation key | Special characters in original key | Expected — keys are auto-sanitized |
-| Wrong paper returned for title | Ambiguous search picked wrong match | Use a DOI or arXiv ID instead for exact results |
+| Wrong paper returned for title | Ambiguous search picked wrong match | Use `--first` and verify, or use a DOI or arXiv ID for exact results |
 | PDF URL returns no results | Some publisher PDF URLs aren't resolvable | Use the abstract/landing page URL instead |

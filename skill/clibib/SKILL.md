@@ -43,6 +43,12 @@ Run `clibib <query>` where query is any of:
 | huggingface | `clibib https://huggingface.co/papers/2301.07041`                  |
 | Paper title | `clibib "Attention Is All You Need"`                               |
 
+For title searches that return multiple candidates, clibib prints all matching BibTeX entries ranked by relevance. Use `--first` to output only the top result (recommended for agent usage):
+
+```bash
+clibib --first "Attention Is All You Need"
+```
+
 The command prints BibTeX to stdout. Capture and use the output as needed.
 
 ## Saving to File
@@ -85,13 +91,14 @@ clibib 2301.07041
 
 ## Error Handling
 
-| Scenario          | Behavior                                                      |
-| ----------------- | ------------------------------------------------------------- |
-| No results found  | Exits with code 1, prints "Error: No results found" to stderr |
-| Network error     | Exits with code 1, prints the error message to stderr         |
-| Command not found | Install with `pip install clibib`                             |
+| Scenario            | Behavior                                                      |
+| ------------------- | ------------------------------------------------------------- |
+| No results found    | Exits with code 1, prints "Error: No results found" to stderr |
+| Ambiguous title     | Prints all matching BibTeX entries ranked by relevance. With `--first`: only the top match |
+| Network error       | Exits with code 1, prints the error message to stderr         |
+| Command not found   | Install with `pip install clibib`                             |
 
-If clibib returns an error, inform the user of the issue. For "no results found", suggest checking the query format or trying an alternative identifier for the same paper.
+If clibib returns an error, inform the user of the issue. For "no results found", suggest checking the query format or trying an alternative identifier for the same paper. When using clibib from an agent or script, pass `--first` to get only the top result.
 
 ## Additional Resources
 

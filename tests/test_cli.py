@@ -2,7 +2,16 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from clibib.api import _sanitize_bibtex_keys, classify_input, extract_bibkey, fetch_bibtex, normalize_url
+from clibib.api import (
+    AmbiguousQueryError,
+    _sanitize_bibtex_keys,
+    _tokenize,
+    classify_input,
+    extract_bibkey,
+    fetch_bibtex,
+    normalize_url,
+    rank_candidates,
+)
 from clibib.cli import build_parser, main
 
 
@@ -32,6 +41,19 @@ def test_parser_output_dir_default_is_none():
     parser = build_parser()
     args = parser.parse_args(["10.1038/nature12373"])
     assert args.o is None
+
+
+def test_parser_first_flag():
+    parser = build_parser()
+    args = parser.parse_args(["--first", "Attention is all you need"])
+    assert args.first is True
+    assert args.query == "Attention is all you need"
+
+
+def test_parser_first_flag_default():
+    parser = build_parser()
+    args = parser.parse_args(["10.1038/nature12373"])
+    assert args.first is False
 
 
 # --- extract_bibkey ---
@@ -132,6 +154,154 @@ def test_sanitize_bibtex_keys(raw, expected_key):
     assert f"{expected_key}," in result
 
 
+# --- _tokenize ---
+
+
+def test_tokenize_basic():
+    assert _tokenize("Hello World") == {"hello", "world"}
+
+
+def test_tokenize_strips_punctuation():
+    assert _tokenize("Attention Is All You Need!") == {"attention", "is", "all", "you", "need"}
+
+
+def test_tokenize_empty():
+    assert _tokenize("") == set()
+
+
+def test_tokenize_numbers():
+    assert _tokenize("GPT-3 2020") == {"gpt", "3", "2020"}
+
+
+# --- rank_candidates ---
+
+
+def test_rank_candidates_exact_match_first():
+    candidates = {
+        "id1": {"title": "Something else entirely"},
+        "id2": {"title": "Attention Is All You Need"},
+        "id3": {"title": "Attention mechanisms in deep learning"},
+    }
+    ranked = rank_candidates("Attention is all you need", candidates)
+    assert ranked[0][0] == "id2"
+
+
+def test_rank_candidates_partial_overlap():
+    candidates = {
+        "id1": {"title": "Deep Learning"},
+        "id2": {"title": "Deep Learning for NLP"},
+    }
+    ranked = rank_candidates("Deep Learning", candidates)
+    # "Deep Learning" exact match should rank higher (higher Jaccard)
+    assert ranked[0][0] == "id1"
+
+
+def test_rank_candidates_empty():
+    ranked = rank_candidates("test query", {})
+    assert ranked == []
+
+
+def test_rank_candidates_missing_title():
+    candidates = {
+        "id1": {"description": "A paper about attention"},
+        "id2": {"title": "Attention Is All You Need"},
+    }
+    ranked = rank_candidates("Attention is all you need", candidates)
+    assert ranked[0][0] == "id2"
+
+
+def test_rank_candidates_uses_description():
+    candidates = {
+        "id1": {"title": "Paper A", "description": "attention is all you need"},
+        "id2": {"title": "Paper B"},
+    }
+    ranked = rank_candidates("attention is all you need", candidates)
+    assert ranked[0][0] == "id1"
+
+
+# --- AmbiguousQueryError ---
+
+
+@patch("clibib.api.requests.post")
+def test_ambiguous_query_error_raised(mock_post):
+    """Multiple candidates in a 300 response should raise AmbiguousQueryError."""
+    choices_resp = MagicMock()
+    choices_resp.status_code = 300
+    choices_resp.json.return_value = {
+        "10.1234/a": {"title": "Paper A"},
+        "10.1234/b": {"title": "Paper B"},
+    }
+    mock_post.return_value = choices_resp
+
+    with pytest.raises(AmbiguousQueryError) as exc_info:
+        fetch_bibtex("some title query")
+    assert exc_info.value.query == "some title query"
+    assert len(exc_info.value.candidates) == 2
+
+
+@patch("clibib.api.requests.get")
+@patch("clibib.api.requests.post")
+def test_crossref_fallback_on_empty_zotero(mock_post, mock_get):
+    """When Zotero returns empty 200, CrossRef fallback should produce candidates."""
+    zotero_resp = MagicMock()
+    zotero_resp.status_code = 200
+    zotero_resp.json.return_value = []
+    zotero_resp.raise_for_status = MagicMock()
+    mock_post.return_value = zotero_resp
+
+    crossref_resp = MagicMock()
+    crossref_resp.json.return_value = {
+        "message": {
+            "items": [
+                {"DOI": "10.1234/a", "title": ["Paper A"], "author": [{"family": "Smith"}]},
+                {"DOI": "10.1234/b", "title": ["Paper B"], "author": [{"family": "Jones"}]},
+            ]
+        }
+    }
+    crossref_resp.raise_for_status = MagicMock()
+    mock_get.return_value = crossref_resp
+
+    with pytest.raises(AmbiguousQueryError) as exc_info:
+        fetch_bibtex("some title query")
+    assert len(exc_info.value.candidates) == 2
+    assert "10.1234/a" in exc_info.value.candidates
+
+
+@patch("clibib.api.requests.get")
+@patch("clibib.api.requests.post")
+def test_crossref_fallback_single_result(mock_post, mock_get):
+    """Single CrossRef result should auto-resolve without AmbiguousQueryError."""
+    zotero_empty = MagicMock()
+    zotero_empty.status_code = 200
+    zotero_empty.json.return_value = []
+    zotero_empty.raise_for_status = MagicMock()
+
+    resolve_resp = MagicMock()
+    resolve_resp.status_code = 200
+    resolve_resp.json.return_value = SAMPLE_ZOTERO_JSON
+    resolve_resp.raise_for_status = MagicMock()
+
+    export_resp = MagicMock()
+    export_resp.text = SAMPLE_BIBTEX
+    export_resp.raise_for_status = MagicMock()
+
+    mock_post.side_effect = [zotero_empty, resolve_resp, export_resp]
+
+    crossref_resp = MagicMock()
+    crossref_resp.json.return_value = {
+        "message": {
+            "items": [
+                {"DOI": "10.1234/only", "title": ["Only Paper"], "author": []},
+            ]
+        }
+    }
+    crossref_resp.raise_for_status = MagicMock()
+    mock_get.return_value = crossref_resp
+
+    result = fetch_bibtex("some title query")
+    assert "Test Article" in result
+
+
 # --- fetch_bibtex (mocked) ---
 
 SAMPLE_ZOTERO_JSON = [
@@ -171,7 +341,7 @@ def test_fetch_bibtex_identifier(mock_post):
 
 @patch("clibib.api.requests.post")
 def test_fetch_bibtex_title_search(mock_post):
-    """Title queries get a 300 with choices, then a re-query with the top identifier."""
+    """Single-choice 300 should auto-resolve without raising AmbiguousQueryError."""
     choices_resp = MagicMock()
     choices_resp.status_code = 300
     choices_resp.json.return_value = {
@@ -222,12 +392,19 @@ def test_fetch_bibtex_url(mock_post):
     assert "/web" in first_call.args[0]
 
 
+@patch("clibib.api.requests.get")
 @patch("clibib.api.requests.post")
-def test_fetch_bibtex_empty_results(mock_post):
+def test_fetch_bibtex_empty_results(mock_post, mock_get):
     resp = MagicMock()
     resp.json.return_value = []
     resp.raise_for_status = MagicMock()
     mock_post.return_value = resp
+
+    # CrossRef fallback also returns nothing
+    crossref_resp = MagicMock()
+    crossref_resp.json.return_value = {"message": {"items": []}}
+    crossref_resp.raise_for_status = MagicMock()
+    mock_get.return_value = crossref_resp
 
     with pytest.raises(ValueError, match="No results found"):
         fetch_bibtex("10.1234/nonexistent")
@@ -280,3 +457,69 @@ def test_main_exits_on_error(mock_fetch):
     with pytest.raises(SystemExit) as exc_info:
         main(["10.1038/bad"])
     assert exc_info.value.code == 1
+
+
+# --- CLI disambiguation ---
+
+
+@patch("clibib.cli.resolve_identifier")
+@patch("clibib.cli.convert_to_bibtex")
+@patch("clibib.cli.fetch_bibtex")
+def test_main_first_flag(mock_fetch, mock_convert, mock_resolve, capsys):
+    """--first flag outputs only the highest-ranked result."""
+    candidates = {
+        "10.1234/wrong": {"title": "Wrong Paper"},
+        "10.1234/right": {"title": "Attention Is All You Need"},
+    }
+    mock_fetch.side_effect = AmbiguousQueryError("Attention is all you need", candidates)
+    mock_resolve.return_value = SAMPLE_ZOTERO_JSON
+    mock_convert.return_value = SAMPLE_BIBTEX
+
+    main(["--first", "Attention is all you need"])
+
+    captured = capsys.readouterr()
+    assert "Test Article" in captured.out
+    mock_resolve.assert_called_once()
+    selected_id = mock_resolve.call_args[0][0]
+    assert selected_id == "10.1234/right"
+
+
+@patch("clibib.cli.resolve_identifier")
+@patch("clibib.cli.convert_to_bibtex")
+@patch("clibib.cli.fetch_bibtex")
+def test_main_ambiguous_dumps_all(mock_fetch, mock_convert, mock_resolve, capsys):
+    """Without --first, all ranked candidates are resolved and printed."""
+    candidates = {
+        "10.1234/a": {"title": "Paper A"},
+        "10.1234/b": {"title": "Paper B"},
+    }
+    mock_fetch.side_effect = AmbiguousQueryError("query", candidates)
+    mock_resolve.return_value = SAMPLE_ZOTERO_JSON
+    mock_convert.return_value = SAMPLE_BIBTEX
+
+    main(["query"])
+
+    captured = capsys.readouterr()
+    assert "Multiple records found" in captured.err
+    assert mock_resolve.call_count == 2
+    assert captured.out.count("Test Article") == 2
+
+
+@patch("clibib.cli.resolve_identifier")
+@patch("clibib.cli.convert_to_bibtex")
+@patch("clibib.cli.fetch_bibtex")
+def test_main_ambiguous_partial_failure(mock_fetch, mock_convert, mock_resolve, capsys):
+    """If some candidates fail to resolve, the rest still print."""
+    candidates = {
+        "10.1234/good": {"title": "Good Paper"},
+        "10.1234/bad": {"title": "Bad Paper"},
+    }
+    mock_fetch.side_effect = AmbiguousQueryError("query", candidates)
+    mock_resolve.side_effect = [SAMPLE_ZOTERO_JSON, Exception("timeout")]
+    mock_convert.return_value = SAMPLE_BIBTEX
+
+    main(["query"])
+
+    captured = capsys.readouterr()
+    assert "Test Article" in captured.out
+    assert "Warning:" in captured.err

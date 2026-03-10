@@ -35,6 +35,12 @@ clibib 978-0-13-468599-1
 
 # Save BibTeX to a file
 clibib -o ~/bibs 10.1038/nature12373
+
+# Title search — prints all matching BibTeX entries, best match first
+clibib "Attention is all you need"
+
+# Only output the best match
+clibib --first "Attention is all you need"
 ```
 
 ## Agent Skill
