@@ -15,6 +15,8 @@ Fetches BibTeX entries from any of these inputs:
 | URL | `https://academic.oup.com/bib/article/25/1/bbad467/7512647` |
 | Paper title | `"Attention Is All You Need"` |
 
+**Note:** Title searches are less reliable than identifier-based lookups. If you only have a title, the skill instructs agents to first find the paper's publication venue, then search for the DOI at that venue — this avoids retrieving the wrong version when a paper has multiple DOIs.
+
 ## Installation
 
 Copy the skill directory into your agent's skills location. For example:

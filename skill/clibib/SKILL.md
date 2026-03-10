@@ -22,8 +22,11 @@ Title-based searches are unreliable because CrossRef and Zotero databases often 
 
 If the user provides only a paper title:
 
-1. **Search the web first** to find the paper's DOI or arXiv ID (e.g., use WebSearch or a similar tool)
-2. Use the DOI or arXiv ID with clibib instead of the raw title
+1. **Search the web for the paper's publication venue** (which conference, journal, or workshop it appeared in)
+2. **Search for the DOI of that paper at that specific venue** (e.g., "Attention Is All You Need DOI NeurIPS 2017")
+3. Use the venue-specific DOI with clibib
+
+This two-step approach avoids retrieving the wrong version when a paper has multiple DOIs (e.g., conference proceedings, journal version, workshop version, preprint).
 
 Only fall back to `clibib "<title>"` if a web search fails to locate an identifier.
 
@@ -62,7 +65,7 @@ For title searches that return multiple candidates, clibib prints all matching B
 clibib --first "Attention Is All You Need"
 ```
 
-**Reminder:** Title search is a last resort. Search the web for the DOI first, then use `clibib <DOI>`.
+**Reminder:** Title search is a last resort. Search the web for the paper's venue first, then find the DOI at that venue, and use `clibib <DOI>`.
 
 The command prints BibTeX to stdout. Capture and use the output as needed.
 
@@ -113,7 +116,7 @@ clibib 2301.07041
 | Network error       | Exits with code 1, prints the error message to stderr         |
 | Command not found   | Install with `pip install clibib`                             |
 
-If clibib returns an error, inform the user of the issue. For "no results found", suggest checking the query format or trying an alternative identifier for the same paper. If a title search returns wrong or no results, search the web for the paper's DOI and retry with that.
+If clibib returns an error, inform the user of the issue. For "no results found", suggest checking the query format or trying an alternative identifier for the same paper. If a title search returns wrong or no results, search the web for the paper's venue, then find the DOI at that venue, and retry.
 
 ## Additional Resources
 
