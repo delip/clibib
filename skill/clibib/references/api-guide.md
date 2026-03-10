@@ -36,7 +36,7 @@
 - If multiple candidates are returned, clibib ranks them by Jaccard token similarity against the query and outputs all matching BibTeX entries (use `--first` to output only the top match)
 - If the primary server returns no results, clibib falls back to CrossRef to find candidate DOIs
 - Wrap multi-word titles in quotes on the command line
-- **Title searches are less reliable** than identifier-based lookups because CrossRef and Zotero databases may return incomplete, incorrect, or ambiguous matches. Prefer DOI, arXiv ID, or URL whenever possible. If you only have a title, search the web for the paper's DOI first and use that instead.
+- **Title searches are less reliable** than identifier-based lookups because CrossRef and Zotero databases may return incomplete, incorrect, or ambiguous matches. Prefer DOI, arXiv ID, or URL whenever possible. If you only have a title, first search the web for the paper's publication venue, then search for the DOI at that specific venue, and use that instead.
 
 ## URL Normalization
 
@@ -92,5 +92,5 @@ The search endpoint returns HTTP 200 for exact identifier matches and HTTP 300 f
 | "No results found" for title | Title too vague or too specific | Adjust the search terms; try the exact paper title |
 | Network timeout | Server unreachable | Check internet connection; retry |
 | Garbled citation key | Special characters in original key | Expected — keys are auto-sanitized |
-| Wrong paper returned for title | Ambiguous search picked wrong match | Use `--first` and verify, or use a DOI or arXiv ID for exact results |
+| Wrong paper returned for title | Ambiguous search picked wrong match | Search the web for the paper's venue, then find the DOI at that venue, or use an arXiv ID for exact results |
 | PDF URL returns no results | Some publisher PDF URLs aren't resolvable | Use the abstract/landing page URL instead |
