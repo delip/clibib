@@ -35,7 +35,15 @@ clibib 978-0-13-468599-1
 
 # Save BibTeX to a file
 clibib -o ~/bibs 10.1038/nature12373
+
+# Title search (less reliable — prefer DOI, arXiv ID, or URL when possible)
+clibib "Attention is all you need"
+
+# Only output the best match
+clibib --first "Attention is all you need"
 ```
+
+> **Note:** Title-based searches rely on CrossRef and Zotero databases, which can return incomplete or incorrect matches. For reliable results, use a DOI, arXiv ID, or URL. If you only have a title, search the web for the paper's DOI first.
 
 ## Agent Skill
 

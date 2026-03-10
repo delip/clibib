@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "clibib"
-version = "1.0.2"
+version = "1.2.0"
 description = "Fetch BibTeX entries from a URL, DOI, ISBN, PMID, or arXiv ID"
 readme = "README.md"
 license = "MIT"
@@ -24,6 +24,7 @@ classifiers = [
 ]
 keywords = ["bibtex", "citation", "doi", "isbn", "arxiv", "pmid", "bibliography"]
 dependencies = [
+    "python-dotenv",
     "requests",
 ]
 
