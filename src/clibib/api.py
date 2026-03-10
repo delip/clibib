@@ -68,6 +68,9 @@ def fetch_zotero_json(text: str) -> list[dict]:
     input_type = classify_input(text)
 
     if input_type == "url":
+        if "doi.org" in text:
+            doi = text.split("doi.org/")[1]
+            return fetch_zotero_json(doi)
         if "alphaxiv.org" in text:
             text = text.replace("alphaxiv.org", "arxiv.org")
         if "huggingface.co/papers/" in text:
