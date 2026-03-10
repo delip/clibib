@@ -1,6 +1,9 @@
 import argparse
 import os
 import sys
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 from clibib.api import (
     AmbiguousQueryError,
@@ -45,6 +48,9 @@ def _resolve_and_print(identifier, args):
 
 def main(argv=None):
     """Entry point for the clibib CLI."""
+    env_file = Path.home() / ".clibib" / ".env"
+    load_dotenv(env_file)
+
     parser = build_parser()
     args = parser.parse_args(argv)
     try:

@@ -1,3 +1,4 @@
+import os
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -523,3 +524,33 @@ def test_main_ambiguous_partial_failure(mock_fetch, mock_convert, mock_resolve, 
     captured = capsys.readouterr()
     assert "Test Article" in captured.out
     assert "Warning:" in captured.err
+
+
+# --- dotenv loading ---
+
+
+@patch("clibib.cli.fetch_bibtex")
+def test_main_loads_dotenv(mock_fetch, tmp_path):
+    """main() loads env vars from ~/.clibib/.env when present."""
+    mock_fetch.return_value = SAMPLE_BIBTEX
+
+    env_dir = tmp_path / ".clibib"
+    env_dir.mkdir()
+    env_file = env_dir / ".env"
+    env_file.write_text("CLIBIB_TEST_VAR=hello_from_dotenv\n", encoding="utf-8")
+
+    with patch("clibib.cli.Path.home", return_value=tmp_path):
+        main(["10.1234/test"])
+
+    assert os.environ.get("CLIBIB_TEST_VAR") == "hello_from_dotenv"
+    # Clean up
+    os.environ.pop("CLIBIB_TEST_VAR", None)
+
+
+@patch("clibib.cli.fetch_bibtex")
+def test_main_works_without_dotenv(mock_fetch, tmp_path):
+    """main() works fine when ~/.clibib/.env doesn't exist."""
+    mock_fetch.return_value = SAMPLE_BIBTEX
+
+    with patch("clibib.cli.Path.home", return_value=tmp_path):
+        main(["10.1234/test"])

@@ -28,7 +28,7 @@
 - Any `http://` or `https://` URL pointing to a paper or publication page
 - URLs are normalized before resolution (see below)
 
-### Paper Title (Free Text)
+### Paper Title (Free Text) — Less Reliable
 
 - Any text that doesn't match the above formats
 - Triggers an ambiguous search; the server may return multiple candidates (HTTP 300)
@@ -36,6 +36,7 @@
 - If multiple candidates are returned, clibib ranks them by Jaccard token similarity against the query and outputs all matching BibTeX entries (use `--first` to output only the top match)
 - If the primary server returns no results, clibib falls back to CrossRef to find candidate DOIs
 - Wrap multi-word titles in quotes on the command line
+- **Title searches are less reliable** than identifier-based lookups because CrossRef and Zotero databases may return incomplete, incorrect, or ambiguous matches. Prefer DOI, arXiv ID, or URL whenever possible. If you only have a title, search the web for the paper's DOI first and use that instead.
 
 ## URL Normalization
 

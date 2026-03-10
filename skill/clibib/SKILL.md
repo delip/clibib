@@ -10,9 +10,22 @@ allowed-tools:
   - Bash(cat *)
   - Bash(ls *)
   - Bash(mkdir *)
+  - WebSearch
+  - WebFetch
 ---
 
 # clibib — Fetch BibTeX Citations
+
+## Important: Prefer DOIs Over Title Searches
+
+Title-based searches are unreliable because CrossRef and Zotero databases often return incomplete or incorrect matches. **Always prefer a DOI, arXiv ID, or URL.**
+
+If the user provides only a paper title:
+
+1. **Search the web first** to find the paper's DOI or arXiv ID (e.g., use WebSearch or a similar tool)
+2. Use the DOI or arXiv ID with clibib instead of the raw title
+
+Only fall back to `clibib "<title>"` if a web search fails to locate an identifier.
 
 ## Prerequisites
 
@@ -41,13 +54,15 @@ Run `clibib <query>` where query is any of:
 | URL         | `clibib https://academic.oup.com/bib/article/25/1/bbad467/7512647` |
 | alphaxiv    | `clibib https://alphaxiv.org/abs/2301.07041`                       |
 | huggingface | `clibib https://huggingface.co/papers/2301.07041`                  |
-| Paper title | `clibib "Attention Is All You Need"`                               |
+| Paper title | `clibib "Attention Is All You Need"` *(less reliable — see above)* |
 
-For title searches that return multiple candidates, clibib prints all matching BibTeX entries ranked by relevance. Use `--first` to output only the top result (recommended for agent usage):
+For title searches that return multiple candidates, clibib prints all matching BibTeX entries ranked by relevance. Use `--first` to output only the top result:
 
 ```bash
 clibib --first "Attention Is All You Need"
 ```
+
+**Reminder:** Title search is a last resort. Search the web for the DOI first, then use `clibib <DOI>`.
 
 The command prints BibTeX to stdout. Capture and use the output as needed.
 
@@ -98,7 +113,7 @@ clibib 2301.07041
 | Network error       | Exits with code 1, prints the error message to stderr         |
 | Command not found   | Install with `pip install clibib`                             |
 
-If clibib returns an error, inform the user of the issue. For "no results found", suggest checking the query format or trying an alternative identifier for the same paper. When using clibib from an agent or script, pass `--first` to get only the top result.
+If clibib returns an error, inform the user of the issue. For "no results found", suggest checking the query format or trying an alternative identifier for the same paper. If a title search returns wrong or no results, search the web for the paper's DOI and retry with that.
 
 ## Additional Resources
 
