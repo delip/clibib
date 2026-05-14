@@ -70,3 +70,17 @@ See [skill/README.md](skill/README.md) for full details.
 pip install -e ".[dev]"
 pytest
 ```
+
+## Citation
+
+```
+@misc{raoccb2026bibtex,
+      title={BibTeX Citation Hallucinations in Scientific Publishing Agents: Evaluation and Mitigation}, 
+      author={Delip Rao and Chris Callison-Burch},
+      year={2026},
+      eprint={2604.03159},
+      archivePrefix={arXiv},
+      primaryClass={cs.DL},
+      url={https://arxiv.org/abs/2604.03159}, 
+}
+```
