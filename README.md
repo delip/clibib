@@ -8,7 +8,10 @@
 <p align="center">
 <img width="600" height="470" alt="image" src="https://github.com/user-attachments/assets/0c60331c-dbbd-4ada-92c6-c2df952177cb" />
 </p>
-A Python-based CLI tool to fetch BibTeX entries from a URL, ISBN, DOI, PMID, arXiv, alphaxiv, huggingface papers, or even just the paper title!
+This repo provides:
+
+ - A Python-based CLI tool to fetch BibTeX entries from a URL, ISBN, DOI, PMID, arXiv, alphaxiv, huggingface papers, or even just the paper title!
+ - An agent skill using this tool to fix hallucinated citations, citations with errors/typos, and outdated citations in your bib file (for example, automatically replace a preprint citation with a peer-reviewed one if that exists).
 
 
 
@@ -55,11 +58,21 @@ clibib includes an [Agent Skill](https://agentskills.io) for fetching citations 
 cp -r skill/clibib ~/.claude/skills/clibib
 ```
 
+or in your favorite agent (Codex, Claude Code, Pi, OpenCode, ...):
+```
+install the clibib skill from https://github.com/delip/clibib
+```
+
+
 **Usage:**
 
 ```
 Get me the bibtex for 10.1038/nature12373
 /clibib 2301.07041
+```
+
+```
+use clibib skill to fix my bib file
 ```
 
 See [skill/README.md](skill/README.md) for full details.
