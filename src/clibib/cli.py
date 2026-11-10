@@ -76,14 +76,18 @@ def main(argv=None):
                 file=sys.stderr,
             )
             errors = []
+            printed = 0
             for identifier, meta, score in ranked:
                 try:
                     _resolve_and_print(identifier, args)
+                    printed += 1
                 except Exception as ex:
                     errors.append(f"{identifier}: {ex}")
             if errors:
                 for err in errors:
                     print(f"Warning: {err}", file=sys.stderr)
+            if errors and not printed:
+                sys.exit(1)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)

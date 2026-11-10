@@ -526,6 +526,29 @@ def test_main_ambiguous_partial_failure(mock_fetch, mock_convert, mock_resolve, 
     assert "Warning:" in captured.err
 
 
+@patch("clibib.cli.resolve_identifier")
+@patch("clibib.cli.convert_to_bibtex")
+@patch("clibib.cli.fetch_bibtex")
+def test_main_ambiguous_total_failure_exits_1(
+    mock_fetch, mock_convert, mock_resolve, capsys
+):
+    """If every candidate fails to resolve, exit nonzero instead of 0."""
+    candidates = {
+        "10.1234/a": {"title": "Paper A"},
+        "10.1234/b": {"title": "Paper B"},
+    }
+    mock_fetch.side_effect = AmbiguousQueryError("query", candidates)
+    mock_resolve.side_effect = Exception("timeout")
+
+    with pytest.raises(SystemExit) as exc_info:
+        main(["query"])
+
+    assert exc_info.value.code == 1
+    captured = capsys.readouterr()
+    assert "Warning:" in captured.err
+    assert captured.out == ""
+
+
 # --- dotenv loading ---
 
 
